@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+  color: #49352a;
+  background: #f5eee5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --paper: #f5eee5;
+  --ink: #49352a;
+  --muted: #806d60;
+  --line: #dfd0c0;
+  --terracotta: #a86e4e;
+  --sage: #775740;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --flower: #a66d49;
+  --weave-line: rgb(121 87 64 / 4%);
+  --weave-border: rgb(157 119 61 / 45%);
+  --header-gradient: linear-gradient(110deg, #f8f2eb, #eee1d3);
+  --hero-gradient: linear-gradient(135deg, #76543d, #3e2d25 75%);
+  --intro-gradient: linear-gradient(135deg, #fbf7f0 0%, #f2e7da 100%);
+  --countdown-gradient: linear-gradient(120deg, #4a3328 0%, #79553c 58%, #986f4d 100%);
+  --events-gradient: linear-gradient(150deg, #f8f2e9 0%, #efe2d3 100%);
+  --event-gradient: linear-gradient(145deg, #f7ede1 0%, #e9d8c6 100%);
+  --event-dark-gradient: linear-gradient(145deg, #75523b 0%, #4d362a 100%);
+  --location-gradient: linear-gradient(135deg, #f8f2e9 0%, #ead8c5 100%);
+  --rsvp-gradient: linear-gradient(135deg, #f2e6d8 0%, #e6d2bf 50%, #f1e4d7 100%);
+  --gift-gradient: linear-gradient(135deg, #fbf7f0 0%, #f0e2d3 100%);
+  --footer-gradient: linear-gradient(110deg, #3f2d25 0%, #684833 55%, #463228 100%);
+  --form-background: rgb(255 250 243 / 62%);
+  --input-background: rgb(255 252 246 / 66%);
+  --attendance-background: rgb(255 252 246 / 45%);
+  --attendance-selected-background: rgb(255 252 246 / 80%);
+  --card-border: rgb(121 87 64 / 19%);
+  --header-action-background: rgb(255 250 243 / 38%);
+
+  scroll-behavior: smooth;
+}
+
+main[data-theme='dark'] {
+  color-scheme: dark;
+  --paper: #211a16;
+  --ink: #f1e5d9;
+  --muted: #c1ad9d;
+  --line: #604d40;
+  --terracotta: #dda67d;
+  --sage: #986e4e;
+  --flower: #f3cfab;
+  --weave-line: rgb(243 207 171 / 5%);
+  --weave-border: rgb(229 194 126 / 43%);
+  --header-gradient: linear-gradient(110deg, #2b211b, #3a2a20);
+  --hero-gradient: linear-gradient(135deg, #563a2b, #211814 75%);
+  --intro-gradient: linear-gradient(135deg, #2a211c 0%, #35271f 100%);
+  --countdown-gradient: linear-gradient(120deg, #241914 0%, #493124 58%, #62432d 100%);
+  --events-gradient: linear-gradient(150deg, #271e19 0%, #35271f 100%);
+  --event-gradient: linear-gradient(145deg, #443126 0%, #35251d 100%);
+  --event-dark-gradient: linear-gradient(145deg, #684832 0%, #3b291f 100%);
+  --location-gradient: linear-gradient(135deg, #2b211b 0%, #403025 100%);
+  --rsvp-gradient: linear-gradient(135deg, #30241d 0%, #443126 50%, #32241c 100%);
+  --gift-gradient: linear-gradient(135deg, #29201b 0%, #3a2a21 100%);
+  --footer-gradient: linear-gradient(110deg, #1d1511 0%, #3b291e 55%, #211813 100%);
+  --form-background: rgb(32 24 19 / 68%);
+  --input-background: rgb(39 29 23 / 84%);
+  --attendance-background: rgb(39 29 23 / 66%);
+  --attendance-selected-background: rgb(75 52 37 / 82%);
+  --card-border: rgb(225 180 143 / 19%);
+  --header-action-background: rgb(40 29 22 / 65%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  overflow-x: clip;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 3px;
+}
+
+::selection {
+  color: #fffaf3;
+  background: #79513b;
+}

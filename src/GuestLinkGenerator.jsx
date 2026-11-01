@@ -94,7 +94,7 @@ function GuestLinkGenerator() {
             id="guest-names"
             value={names}
             onChange={(event) => setNames(event.target.value)}
-            placeholder={'Budi Santoso\nIbu Siti dan keluarga\nAndi'}
+            placeholder="Masukkan nama tamu, satu nama per baris"
             rows={8}
           />
           <div className="link-generator-form-footer">

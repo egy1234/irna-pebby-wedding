@@ -445,7 +445,6 @@ main[data-theme='light'] {
   background-position: center 54%;
   background-size: cover;
   transform: scale(1.015);
-  animation: hero-arrive 1.2s ease-out both;
 }
 
 .hero::after {
@@ -462,7 +461,29 @@ main[data-theme='light'] {
   z-index: 1;
   text-align: center;
   margin-top: -12px;
-  animation: text-arrive 800ms 160ms ease both;
+}
+
+.invitation-is-open .site-header {
+  animation: header-arrive 700ms 80ms both cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.invitation-is-open .hero-photo {
+  animation: hero-arrive 1.5s both cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.invitation-is-open .hero-content > * {
+  animation: hero-item-arrive 850ms both cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.invitation-is-open .hero-content > :nth-child(1) { animation-delay: 180ms; }
+.invitation-is-open .hero-content > :nth-child(2) { animation-delay: 300ms; }
+.invitation-is-open .hero-content > :nth-child(3) { animation-delay: 420ms; }
+.invitation-is-open .hero-content > :nth-child(4) { animation-delay: 540ms; }
+.invitation-is-open .hero-content > :nth-child(5) { animation-delay: 660ms; }
+
+.invitation-is-open .hero-caption,
+.invitation-is-open .hero-index {
+  animation: text-arrive 800ms 700ms both ease;
 }
 
 .eyebrow {
@@ -575,13 +596,18 @@ main[data-theme='light'] {
 
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 700ms ease, transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  filter: blur(3px);
+  transform: translateY(28px) scale(0.99);
+  transition:
+    opacity 850ms ease,
+    filter 850ms ease,
+    transform 850ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 .reveal.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  filter: blur(0);
+  transform: translateY(0) scale(1);
 }
 
 .event-card:nth-child(2) {
@@ -1772,12 +1798,22 @@ main[data-theme='dark'] .location-map iframe {
 }
 
 @keyframes hero-arrive {
-  from { transform: scale(1.07); }
+  from { opacity: 0.72; transform: scale(1.07); }
   to { transform: scale(1.015); }
 }
 
 @keyframes text-arrive {
   from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes header-arrive {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes hero-item-arrive {
+  from { opacity: 0; transform: translateY(22px); }
   to { opacity: 1; transform: translateY(0); }
 }
 

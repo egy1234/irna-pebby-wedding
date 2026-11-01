@@ -136,11 +136,13 @@ function App() {
   }, [greetingModal])
 
   useEffect(() => {
+    if (!invitationOpened) return undefined
+
     const revealElements = document.querySelectorAll('.reveal')
 
     if (!('IntersectionObserver' in window)) {
       revealElements.forEach((element) => element.classList.add('is-visible'))
-      return
+      return undefined
     }
 
     const observer = new IntersectionObserver(
@@ -157,7 +159,7 @@ function App() {
 
     revealElements.forEach((element) => observer.observe(element))
     return () => observer.disconnect()
-  }, [])
+  }, [invitationOpened])
 
   const registerGuest = async (event) => {
     event.preventDefault()
@@ -256,6 +258,9 @@ function App() {
   }
 
   const openInvitation = () => {
+    if (invitationOpening || invitationOpened) return
+    void startMusic()
+
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setInvitationOpened(true)
       return
@@ -267,6 +272,24 @@ function App() {
       setInvitationOpening(false)
       openingTimerRef.current = null
     }, 1100)
+  }
+
+  const startMusic = async () => {
+    setMusicMessage('')
+
+    try {
+      const player = musicRef.current
+      if (!player) throw new Error('Pemutar musik belum siap.')
+
+      await player.play()
+      setMusicPlaying(true)
+      setMusicMessage('Musik sedang diputar.')
+    } catch (error) {
+      setMusicPlaying(false)
+      setMusicMessage(error instanceof Error && error.name === 'NotSupportedError'
+        ? 'Format file musik ini tidak didukung browser.'
+        : 'Musik tidak dapat diputar. Tekan tombol musik untuk mencoba lagi.')
+    }
   }
 
   const createTouchEffect = (event) => {
@@ -286,26 +309,20 @@ function App() {
   const toggleMusic = async () => {
     setMusicMessage('')
 
-    try {
-      const player = musicRef.current
-      if (!player) throw new Error('Pemutar musik belum siap.')
-
-      if (musicPlaying) {
-        player.pause()
-        setMusicPlaying(false)
-        setMusicMessage('Musik dijeda.')
-        return
-      }
-
-      await player.play()
-      setMusicPlaying(true)
-      setMusicMessage('Musik sedang diputar.')
-    } catch (error) {
-      setMusicPlaying(false)
-      setMusicMessage(error instanceof Error && error.name === 'NotSupportedError'
-        ? 'Format file musik ini tidak didukung browser.'
-        : 'Musik tidak dapat diputar. Periksa file di folder public, lalu coba lagi.')
+    const player = musicRef.current
+    if (!player) {
+      setMusicMessage('Pemutar musik belum siap.')
+      return
     }
+
+    if (musicPlaying) {
+      player.pause()
+      setMusicPlaying(false)
+      setMusicMessage('Musik dijeda.')
+      return
+    }
+
+    await startMusic()
   }
 
   return (
@@ -479,7 +496,7 @@ function App() {
       </section>
 
       <section className="events section-wrap" id="acara">
-        <div className="section-label"><span>02</span> RANGKAIAN ACARA</div>
+        <div className="section-label reveal"><span>02</span> RANGKAIAN ACARA</div>
         <div className="events-heading reveal">
           <p className="eyebrow">CATAT TANGGALNYA</p>
           <h2>Hari yang kami<br /><em>nantikan.</em></h2>
@@ -513,7 +530,7 @@ function App() {
       </section>
 
       <section className="location-section section-wrap" id="lokasi">
-        <div className="section-label"><span>03</span> LOKASI ACARA</div>
+        <div className="section-label reveal"><span>03</span> LOKASI ACARA</div>
         <div className="location-content">
           <div className="location-copy location-paper reveal">
             <p className="eyebrow">SAMPAI JUMPA DI PAREPARE</p>
@@ -549,14 +566,14 @@ function App() {
         <span className="section-flower section-flower-one" aria-hidden="true">❀</span>
         <span className="section-flower section-flower-two" aria-hidden="true">✿</span>
         <div className="rsvp-content">
-          <div className="section-label"><span>04</span> KONFIRMASI KEHADIRAN</div>
-          <div className="rsvp-intro">
+          <div className="section-label reveal"><span>04</span> KONFIRMASI KEHADIRAN</div>
+          <div className="rsvp-intro reveal">
             <p className="eyebrow">KAMI MENUNGGU KABAR BAIK DARIMU</p>
             <h2>Bisakah Anda<br /><em>bergabung?</em></h2>
             <p className="rsvp-description">Mohon konfirmasi kehadiran Anda melalui formulir berikut.</p>
           </div>
 
-          <div className="rsvp-interaction">
+          <div className="rsvp-interaction reveal">
             {confirmation && (
               <p className="rsvp-confirmation" role="status">
                 Terima kasih, <strong>{confirmation.name}</strong>. Konfirmasi Anda{' '}
@@ -612,7 +629,7 @@ function App() {
       </section>
 
       <section className="gift-section section-wrap" id="hadiah">
-        <div className="section-label"><span>05</span> TANDA KASIH</div>
+        <div className="section-label reveal"><span>05</span> TANDA KASIH</div>
         <div className="gift-copy reveal">
           <p className="eyebrow">DOA ANDA ADALAH HADIAH TERINDAH</p>
           <h2>Namun jika ingin<br />berbagi <em>kebahagiaan.</em></h2>

@@ -4,6 +4,8 @@ Undangan digital satu halaman berbahasa Indonesia, dibuat dengan React dan Vite.
 
 Ikon antarmuka menggunakan Bootstrap Icons melalui paket `bootstrap-icons`. Petunjuk arah tersedia melalui Google Maps dan Apple Maps; tautan Apple Maps membuka aplikasi Maps di iPhone jika tersedia.
 
+Pratinjau tautan memakai metadata Open Graph/Twitter pada `index.html` dan foto yang sama dengan latar hero. Agar pratinjau muncul, situs harus sudah di-deploy ke URL publik yang dapat diakses crawler; setelah memperbarui metadata, platform berbagi mungkin perlu waktu untuk memperbarui cache pratinjau.
+
 ## Menjalankan aplikasi
 
 ```sh

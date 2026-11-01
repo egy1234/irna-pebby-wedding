@@ -1,6 +1,8 @@
 # Undangan Pernikahan Irna & Peby
 
-Undangan digital satu halaman berbahasa Indonesia, dibuat dengan React dan Vite. Mencakup layar pembuka amplop animatif, efek kilau saat halaman disentuh, tema terang/gelap, bunga animasi di seluruh layar, musik ambient yang dimulai melalui tombol pengunjung, hitung mundur, informasi acara, halaman lokasi dengan peta dan petunjuk Google Maps, konfirmasi kehadiran, surat ucapan interaktif, serta informasi transfer.
+Undangan digital satu halaman berbahasa Indonesia, dibuat dengan React dan Vite. Mencakup layar pembuka amplop animatif, efek kilau saat halaman disentuh, tema terang/gelap, bunga animasi di seluruh layar, musik MP3 yang dimulai melalui tombol pengunjung, hitung mundur, informasi acara, halaman lokasi dengan peta dan petunjuk Google Maps, konfirmasi kehadiran, surat ucapan interaktif, serta informasi transfer.
+
+Ikon antarmuka menggunakan Bootstrap Icons melalui paket `bootstrap-icons`. Petunjuk arah tersedia melalui Google Maps dan Apple Maps; tautan Apple Maps membuka aplikasi Maps di iPhone jika tersedia.
 
 ## Menjalankan aplikasi
 
@@ -14,6 +16,7 @@ Jalankan `npm run lint` untuk pemeriksaan kode dan `npm run build` untuk membuat
 ## Menyesuaikan undangan
 
 - Ubah nama pasangan, tanggal, lokasi, dan jadwal acara di `src/App.jsx`.
+- File musik yang dipakai tombol musik berada di `public/Nada Serumpun (feat. Yoga Kharisma Putra).mp3`.
 - Ubah rekening contoh sebelum undangan dibagikan.
 - Ganti foto hero dan gaya halaman melalui `src/App.css` serta `src/index.css`.
 

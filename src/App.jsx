@@ -4,10 +4,9 @@ import './App.css'
 const weddingDate = new Date('2026-12-20T08:00:00+07:00')
 const weddingAddress = 'Jl. Bau Massepe No. 175, Kampung Baru, Kecamatan Bacukiki Barat, Kota Parepare, Sulawesi Selatan 91121'
 const mapUrl = 'https://www.google.com/maps/dir/?api=1&destination=-4.020083420573997%2C119.62346972150353'
+const appleMapsUrl = 'https://maps.apple.com/?daddr=-4.020083420573997%2C119.62346972150353&dirflg=d'
 const mapEmbedUrl = 'https://maps.google.com/maps?q=-4.020083420573997%2C119.62346972150353&z=16&output=embed'
 const floatingFlowers = ['✿', '❀', '✧', '✾', '❁', '✦', '✿', '❀', '✧', '✾', '❁', '✦']
-const melody = [523.25, 392, 440, 523.25, 587.33, 523.25, 440, 392, 349.23, 392, 440, 523.25, 493.88, 440, 392, 349.23]
-const bassNotes = [130.81, 146.83, 174.61, 196]
 const greetingsStorageKey = 'wedding-greetings'
 const webAppUrl = 'https://script.google.com/macros/s/AKfycbzDnyjB-Ob8tP_4CoFhHEPu11opRir56ZQPUt6LaL-UkqwfGEEgahMdnfIIm4OFYbtj/exec'
 const weddingDateLabel = new Intl.DateTimeFormat('id-ID', {
@@ -90,7 +89,6 @@ function App() {
   const [invitationOpening, setInvitationOpening] = useState(false)
   const [touchEffects, setTouchEffects] = useState([])
   const musicRef = useRef(null)
-  const pauseTimerRef = useRef(null)
   const openingTimerRef = useRef(null)
   const touchTimersRef = useRef(new Set())
   const greetingModalRef = useRef(null)
@@ -101,14 +99,9 @@ function App() {
   }, [])
 
   useEffect(() => () => {
-    const player = musicRef.current
     if (openingTimerRef.current) window.clearTimeout(openingTimerRef.current)
-    if (pauseTimerRef.current) window.clearTimeout(pauseTimerRef.current)
     touchTimersRef.current.forEach((timer) => window.clearTimeout(timer))
-    if (player) {
-      window.clearInterval(player.timer)
-      player.context.close()
-    }
+    musicRef.current?.pause()
   }, [])
 
   useEffect(() => {
@@ -262,38 +255,6 @@ function App() {
     }
   }
 
-  const playTone = (player, frequency, duration, volume = 0.2) => {
-    const { context, gain } = player
-    const oscillator = context.createOscillator()
-    const noteGain = context.createGain()
-    const startAt = context.currentTime + 0.04
-    const endAt = startAt + duration
-
-    oscillator.type = 'sine'
-    oscillator.frequency.setValueAtTime(frequency, startAt)
-    noteGain.gain.setValueAtTime(0.0001, startAt)
-    noteGain.gain.linearRampToValueAtTime(volume, startAt + 0.16)
-    noteGain.gain.exponentialRampToValueAtTime(0.0001, endAt)
-    oscillator.connect(noteGain)
-    noteGain.connect(gain)
-    oscillator.start(startAt)
-    oscillator.stop(endAt + 0.04)
-  }
-
-  const scheduleMusic = (player) => {
-    const melodyIndex = player.step % melody.length
-    playTone(player, melody[melodyIndex], 1.9, 0.2)
-    if (melodyIndex % 4 === 0) {
-      playTone(player, bassNotes[(melodyIndex / 4) % bassNotes.length], 3.5, 0.11)
-    }
-    player.step += 1
-  }
-
-  const startMusicLoop = (player) => {
-    scheduleMusic(player)
-    player.timer = window.setInterval(() => scheduleMusic(player), 1350)
-  }
-
   const openInvitation = () => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setInvitationOpened(true)
@@ -326,45 +287,24 @@ function App() {
     setMusicMessage('')
 
     try {
-      let player = musicRef.current
-      if (!player) {
-        const AudioContext = window.AudioContext
-        if (!AudioContext) {
-          setMusicMessage('Browser ini belum mendukung pemutar musik.')
-          return
-        }
-
-        const context = new AudioContext()
-        const gain = context.createGain()
-        gain.gain.setValueAtTime(0.13, context.currentTime)
-        gain.connect(context.destination)
-        player = { context, gain, timer: null, step: 0 }
-        musicRef.current = player
-        await context.resume()
-        startMusicLoop(player)
-        setMusicPlaying(true)
-        setMusicMessage('Musik lembut sedang diputar.')
-        return
-      }
+      const player = musicRef.current
+      if (!player) throw new Error('Pemutar musik belum siap.')
 
       if (musicPlaying) {
-        window.clearInterval(player.timer)
-        player.gain.gain.setTargetAtTime(0.0001, player.context.currentTime, 0.09)
-        pauseTimerRef.current = window.setTimeout(() => player.context.suspend(), 450)
+        player.pause()
         setMusicPlaying(false)
         setMusicMessage('Musik dijeda.')
         return
       }
 
-      if (pauseTimerRef.current) window.clearTimeout(pauseTimerRef.current)
-      await player.context.resume()
-      player.gain.gain.setTargetAtTime(0.13, player.context.currentTime, 0.2)
-      startMusicLoop(player)
+      await player.play()
       setMusicPlaying(true)
-      setMusicMessage('Musik dilanjutkan.')
-    } catch {
+      setMusicMessage('Musik sedang diputar.')
+    } catch (error) {
       setMusicPlaying(false)
-      setMusicMessage('Musik tidak dapat diputar. Coba tekan tombol musik sekali lagi.')
+      setMusicMessage(error instanceof Error && error.name === 'NotSupportedError'
+        ? 'Format file musik ini tidak didukung browser.'
+        : 'Musik tidak dapat diputar. Periksa file di folder public, lalu coba lagi.')
     }
   }
 
@@ -399,7 +339,7 @@ function App() {
             </button>
           </div>
           <p className="opening-instruction">Sentuh segel untuk membuka undangan</p>
-          <button className="opening-text-button" type="button" onClick={openInvitation}>Buka undangan <span>↗</span></button>
+          <button className="opening-text-button" type="button" onClick={openInvitation}>Buka undangan <span><i className="bi bi-arrow-up-right" aria-hidden="true" /></span></button>
         </div>
       )}
       <main
@@ -408,6 +348,7 @@ function App() {
         inert={!invitationOpened}
         onPointerDown={createTouchEffect}
       >
+      <audio ref={musicRef} src="/Nada%20Serumpun%20(feat.%20Yoga%20Kharisma%20Putra).mp3" loop preload="none" />
       <div className="global-flower-layer" aria-hidden="true">
         {floatingFlowers.map((flower, index) => (
           <span className="global-flower" key={`${flower}-${index}`}>{flower}</span>
@@ -432,7 +373,7 @@ function App() {
           <a href="#acara">Acara</a>
           <a href="#lokasi">Lokasi</a>
           <a href="#hadiah">Hadiah</a>
-          <a className="nav-rsvp" href="#rsvp">Konfirmasi hadir <span>↗</span></a>
+          <a className="nav-rsvp" href="#rsvp">Konfirmasi hadir <span><i className="bi bi-arrow-up-right" aria-hidden="true" /></span></a>
         </nav>
         <div className="header-actions">
           <button
@@ -443,7 +384,7 @@ function App() {
             aria-pressed={theme === 'dark'}
             title={`Aktifkan tema ${theme === 'light' ? 'gelap' : 'terang'}`}
           >
-            <span aria-hidden="true">{theme === 'light' ? '☾' : '☀'}</span>
+            <i className={`bi ${theme === 'light' ? 'bi-moon-stars' : 'bi-sun'}`} aria-hidden="true" />
           </button>
           <button
             className={`icon-button music-button ${musicPlaying ? 'is-playing' : ''}`}
@@ -453,7 +394,7 @@ function App() {
             aria-pressed={musicPlaying}
             title={musicPlaying ? 'Jeda musik' : 'Putar musik'}
           >
-            <span aria-hidden="true">{musicPlaying ? 'Ⅱ' : '♫'}</span>
+            <i className={`bi ${musicPlaying ? 'bi-pause-fill' : 'bi-music-note-beamed'}`} aria-hidden="true" />
           </button>
           {musicMessage && <span className="header-status" role="status">{musicMessage}</span>}
         </div>
@@ -551,7 +492,10 @@ function App() {
             <p className="event-time"><strong>10.00 WITA</strong> – selesai</p>
             <div className="event-divider" />
             <p className="event-place">{weddingAddress}</p>
-            <a className="text-link" href={mapUrl} target="_blank" rel="noreferrer">Petunjuk arah Google Maps <span>↗</span></a>
+            <div className="event-map-links">
+              <a className="text-link" href={mapUrl} target="_blank" rel="noreferrer">Google Maps <i className="bi bi-arrow-up-right" aria-hidden="true" /></a>
+              <a className="text-link" href={appleMapsUrl} target="_blank" rel="noreferrer">Apple Maps <i className="bi bi-arrow-up-right" aria-hidden="true" /></a>
+            </div>
           </article>
           <article className="event-card event-card-dark reveal">
             <p className="event-number">02 / RESEPSI</p>
@@ -560,7 +504,10 @@ function App() {
             <p className="event-time"><strong>11.00 WITA</strong> – selesai</p>
             <div className="event-divider" />
             <p className="event-place">{weddingAddress}</p>
-            <a className="text-link" href={mapUrl} target="_blank" rel="noreferrer">Petunjuk arah Google Maps <span>↗</span></a>
+            <div className="event-map-links">
+              <a className="text-link" href={mapUrl} target="_blank" rel="noreferrer">Google Maps <i className="bi bi-arrow-up-right" aria-hidden="true" /></a>
+              <a className="text-link" href={appleMapsUrl} target="_blank" rel="noreferrer">Apple Maps <i className="bi bi-arrow-up-right" aria-hidden="true" /></a>
+            </div>
           </article>
         </div>
       </section>
@@ -573,9 +520,14 @@ function App() {
             <h2>Temukan<br /><em>jalan menuju kami.</em></h2>
             <p className="location-venue"><strong>Akad nikah dan resepsi</strong></p>
             <address>{weddingAddress}</address>
-            <a className="button button-dark location-button" href={mapUrl} target="_blank" rel="noreferrer">
-              Buka petunjuk Google Maps <span>↗</span>
-            </a>
+            <div className="location-map-actions">
+              <a className="button button-dark location-button" href={mapUrl} target="_blank" rel="noreferrer">
+                <i className="bi bi-geo-alt" aria-hidden="true" /> Google Maps <i className="bi bi-arrow-up-right" aria-hidden="true" />
+              </a>
+              <a className="button button-dark location-button apple-maps-button" href={appleMapsUrl} target="_blank" rel="noreferrer">
+                <i className="bi bi-apple" aria-hidden="true" /> Apple Maps <i className="bi bi-arrow-up-right" aria-hidden="true" />
+              </a>
+            </div>
           </div>
           <div className="location-map reveal">
             <iframe
@@ -586,7 +538,7 @@ function App() {
               allowFullScreen
             />
             <a className="map-overlay-link" href={mapUrl} target="_blank" rel="noreferrer">
-              Lihat rute ke lokasi <span>↗</span>
+              Buka Google Maps <span><i className="bi bi-arrow-up-right" aria-hidden="true" /></span>
             </a>
           </div>
         </div>
@@ -648,12 +600,12 @@ function App() {
               )}
               {formError && <p className="form-error" role="alert">{formError}</p>}
               <button className="button button-dark" type="submit" disabled={isSubmittingRsvp}>
-                {isSubmittingRsvp ? 'Mengirim...' : 'Kirim konfirmasi'} <span>↗</span>
+                {isSubmittingRsvp ? 'Mengirim...' : 'Kirim konfirmasi'} <span><i className="bi bi-arrow-up-right" aria-hidden="true" /></span>
               </button>
               <p className="form-note">Konfirmasi dikirim ke spreadsheet.</p>
             </form>
             <button className="greeting-invite-button" type="button" onClick={openGreetingComposer}>
-              <span aria-hidden="true">✉</span> Bagikan ucapan
+              <i className="bi bi-envelope-heart" aria-hidden="true" /> Bagikan ucapan
             </button>
           </div>
         </div>
@@ -671,7 +623,8 @@ function App() {
             <div className="account-bottom">
               <span>ATAS NAMA<br /><strong>IRNA SRI REZKY IRWAN</strong></span>
               <button className="copy-button" type="button" onClick={() => copyAccount('8460475733')}>
-                {copiedAccount === '8460475733' ? 'Tersalin ✓' : 'Salin nomor'}
+                <i className={`bi ${copiedAccount === '8460475733' ? 'bi-check2' : 'bi-copy'}`} aria-hidden="true" />
+                {copiedAccount === '8460475733' ? 'Tersalin' : 'Salin nomor'}
               </button>
             </div>
           </div>
@@ -707,7 +660,7 @@ function App() {
             aria-haspopup="dialog"
             aria-label={`Buka ucapan, ${storedGreetings.greetings.length} surat`}
           >
-            <span className="greeting-dock-icon" aria-hidden="true">✉</span>
+            <i className="bi bi-envelope-heart greeting-dock-icon" aria-hidden="true" />
             <span>Ucapan</span>
             <span className="greeting-count">{storedGreetings.greetings.length}</span>
           </button>
@@ -727,7 +680,7 @@ function App() {
                 tabIndex="-1"
                 ref={greetingModalRef}
               >
-                <button className="greeting-close" type="button" onClick={closeGreetingModal} aria-label="Tutup pop-up">×</button>
+                <button className="greeting-close" type="button" onClick={closeGreetingModal} aria-label="Tutup pop-up"><i className="bi bi-x-lg" aria-hidden="true" /></button>
                 {greetingModal === 'rsvp-success' ? (
                   <div className="rsvp-thanks">
                     <span className="rsvp-thanks-seal" aria-hidden="true">✦</span>
@@ -750,7 +703,7 @@ function App() {
                         setGreetingModal('compose')
                       }}
                     >
-                      ✉ <span>Tulis ucapan untuk mempelai</span> <span>↗</span>
+                      <i className="bi bi-envelope-heart" aria-hidden="true" /> <span>Tulis ucapan untuk mempelai</span> <span><i className="bi bi-arrow-up-right" aria-hidden="true" /></span>
                     </button>
                     <button className="rsvp-thanks-dismiss" type="button" onClick={closeGreetingModal}>
                       Nanti saja
@@ -784,7 +737,7 @@ function App() {
                       />
                       {greetingError && <p className="form-error" role="alert">{greetingError}</p>}
                       <button className="button button-dark" type="submit" disabled={isSubmittingGreeting}>
-                        {isSubmittingGreeting ? 'Mengirim...' : 'Kirim surat'} <span>↗</span>
+                        {isSubmittingGreeting ? 'Mengirim...' : 'Kirim surat'} <span><i className="bi bi-arrow-up-right" aria-hidden="true" /></span>
                       </button>
                     </form>
                   </>

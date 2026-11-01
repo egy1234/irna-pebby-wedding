@@ -56,20 +56,23 @@ main[data-theme='light'] {
 .invitation-opening::before,
 .invitation-opening::after {
   position: absolute;
+  top: 50%;
+  left: 50%;
   width: min(60vw, 520px);
   aspect-ratio: 1;
   border: 1px solid rgb(168 110 78 / 18%);
   border-radius: 50%;
   content: '';
   pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 
 .invitation-opening::before {
-  transform: scale(1.34);
+  transform: translate(-50%, -50%) scale(1.34);
 }
 
 .invitation-opening::after {
-  transform: scale(1.58);
+  transform: translate(-50%, -50%) scale(1.58);
 }
 
 .opening-stars {
@@ -1149,6 +1152,19 @@ main[data-theme='light'] {
   margin-top: 13px;
 }
 
+.event-map-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+
+.event-map-links .text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
 .event-card-dark .text-link {
   color: #f7f1e8;
 }
@@ -1269,14 +1285,33 @@ main[data-theme='light'] {
   overflow-wrap: anywhere;
 }
 
+.location-map-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
 .location-button {
   width: fit-content;
-  margin: 24px auto 0;
+  margin: 0;
   background: var(--event-dark-gradient);
 }
 
 .location-button:hover {
   background: var(--event-dark-gradient);
+}
+
+.apple-maps-button {
+  border: 1px solid var(--sage);
+  color: var(--ink);
+  background: transparent;
+}
+
+.apple-maps-button:hover {
+  color: #fffaf3;
+  background: var(--sage);
 }
 
 .location-map {
@@ -1641,6 +1676,9 @@ main[data-theme='dark'] .location-map iframe {
 }
 
 .copy-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 11px;
   border: 1px solid rgb(255 255 255 / 45%);
   color: #fffaf3;
@@ -1995,6 +2033,14 @@ main[data-theme='dark'] .location-map iframe {
 }
 
 @media (max-width: 480px) {
+  .invitation-opening::before {
+    transform: translate(-50%, -50%) scale(1.18);
+  }
+
+  .invitation-opening::after {
+    transform: translate(-50%, -50%) scale(1.36);
+  }
+
   .brand {
     font-size: 26px;
   }
@@ -2588,12 +2634,12 @@ main[data-theme='dark'] .location-map iframe {
   background: var(--sage);
 }
 
-.greeting-invite-button span {
+.greeting-invite-button > i {
   color: var(--terracotta);
   font-size: 16px;
 }
 
-.greeting-invite-button:hover span {
+.greeting-invite-button:hover > i {
   color: inherit;
 }
 

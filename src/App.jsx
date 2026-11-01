@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import './App.css'
 
 const weddingDate = new Date('2026-12-20T08:00:00+07:00')
+const weddingVenue = 'Cafe D’Carlos'
 const weddingAddress = 'Jl. Bau Massepe No. 175, Kampung Baru, Kecamatan Bacukiki Barat, Kota Parepare, Sulawesi Selatan 91121'
 const mapUrl = 'https://www.google.com/maps/dir/?api=1&destination=-4.020083420573997%2C119.62346972150353'
 const appleMapsUrl = 'https://maps.apple.com/?daddr=-4.020083420573997%2C119.62346972150353&dirflg=d'
@@ -9,11 +10,12 @@ const mapEmbedUrl = 'https://maps.google.com/maps?q=-4.020083420573997%2C119.623
 const floatingFlowers = ['✿', '❀', '✧', '✾', '❁', '✦', '✿', '❀', '✧', '✾', '❁', '✦']
 const greetingsStorageKey = 'wedding-greetings'
 const webAppUrl = 'https://script.google.com/macros/s/AKfycbzDnyjB-Ob8tP_4CoFhHEPu11opRir56ZQPUt6LaL-UkqwfGEEgahMdnfIIm4OFYbtj/exec'
-const weddingDateLabel = new Intl.DateTimeFormat('id-ID', {
-  day: 'numeric',
+let greetingsRequestId = 0
+const weddingDateParts = new Intl.DateTimeFormat('id-ID', {
   month: 'long',
   year: 'numeric',
-}).format(weddingDate)
+}).formatToParts(weddingDate)
+const weddingDateLabel = (day) => `${day} ${weddingDateParts.find((part) => part.type === 'month').value} ${weddingDateParts.find((part) => part.type === 'year').value}`
 
 async function postToSpreadsheet(payload) {
   const response = await fetch(webAppUrl, {
@@ -23,6 +25,68 @@ async function postToSpreadsheet(payload) {
   })
 
   return { verified: response.type !== 'opaque' }
+}
+
+function fetchSharedGreetings() {
+  return new Promise((resolve, reject) => {
+    const callbackName = `__weddingGreetings${Date.now()}${greetingsRequestId++}`
+    const script = document.createElement('script')
+    const url = new URL(webAppUrl)
+    let settled = false
+
+    const cleanup = () => {
+      window.clearTimeout(timeout)
+      script.remove()
+      delete window[callbackName]
+    }
+
+    const finish = (callback, value) => {
+      if (settled) return
+      settled = true
+      cleanup()
+      callback(value)
+    }
+
+    const timeout = window.setTimeout(() => {
+      finish(reject, new Error('Waktu tunggu habis. Periksa deployment Apps Script dan koneksi internet.'))
+    }, 15000)
+
+    window[callbackName] = (result) => {
+      const entries = result?.greetings ?? result?.data
+      if (result?.status !== 'success' || !Array.isArray(entries)) {
+        finish(reject, new Error(result?.message || 'Respons daftar ucapan dari Apps Script tidak valid.'))
+        return
+      }
+
+      const greetings = entries.map((greeting) => ({
+        id: String(greeting.id || ''),
+        name: String(greeting.name || greeting.nama_pengirim || ''),
+        message: String(greeting.message || greeting.pesan || ''),
+        createdAt: String(greeting.createdAt || greeting.waktu_kirim || ''),
+      }))
+      const hasInvalidGreeting = greetings.some((greeting) => (
+        !greeting.id
+        || !greeting.name
+        || !greeting.message
+        || !Number.isFinite(Date.parse(greeting.createdAt))
+      ))
+
+      if (hasInvalidGreeting) {
+        finish(reject, new Error('Format data ucapan pada spreadsheet tidak valid.'))
+        return
+      }
+
+      finish(resolve, greetings)
+    }
+
+    script.async = true
+    script.onerror = () => finish(reject, new Error('Daftar ucapan tidak dapat dimuat dari Apps Script.'))
+    url.searchParams.set('action', 'getGreetings')
+    url.searchParams.set('callback', callbackName)
+    url.searchParams.set('_', String(Date.now()))
+    script.src = url.toString()
+    document.head.append(script)
+  })
 }
 
 function loadGreetings() {
@@ -68,10 +132,87 @@ function SulapaMark({ className = '' }) {
   )
 }
 
+function EventDate() {
+  const [day, setDay] = useState(() => (
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches ? weddingDate.getDate() : 1
+  ))
+  const dateRef = useRef(null)
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
+
+    let animationFrame
+    let startTime
+    let previousDay = 1
+    const duration = 3000
+    const startCount = () => {
+      const animate = (timestamp) => {
+        if (startTime === undefined) startTime = timestamp
+        const progress = Math.min((timestamp - startTime) / duration, 1)
+        const easedProgress = progress < 0.5
+          ? 4 * progress ** 3
+          : 1 - ((-2 * progress + 2) ** 3) / 2
+        const nextDay = Math.min(
+          weddingDate.getDate(),
+          1 + Math.floor(easedProgress * (weddingDate.getDate() - 1)),
+        )
+
+        if (nextDay !== previousDay) {
+          previousDay = nextDay
+          setDay(nextDay)
+        }
+
+        if (progress < 1) animationFrame = window.requestAnimationFrame(animate)
+      }
+
+      animationFrame = window.requestAnimationFrame(animate)
+    }
+
+    if (!('IntersectionObserver' in window)) {
+      startCount()
+      return () => window.cancelAnimationFrame(animationFrame)
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        observer.disconnect()
+        startCount()
+      }
+    }, { threshold: 0.4 })
+
+    if (dateRef.current) observer.observe(dateRef.current)
+    return () => {
+      observer.disconnect()
+      window.cancelAnimationFrame(animationFrame)
+    }
+  }, [])
+
+  return (
+    <div className="event-day-date" ref={dateRef}>
+      <span className="event-date-weekday">MINGGU</span>
+      <time className="event-date-counter" dateTime={weddingDate.toISOString()}>
+        <span className="event-date-day" key={day}>{String(day).padStart(2, '0')}</span>
+        <span className="event-date-month">
+          {weddingDateParts.find((part) => part.type === 'month').value}
+          <strong>{weddingDateParts.find((part) => part.type === 'year').value}</strong>
+        </span>
+      </time>
+    </div>
+  )
+}
+
 function App() {
   const [timeLeft, setTimeLeft] = useState(getTimeLeft)
-  const [storedGreetings, setStoredGreetings] = useState(loadGreetings)
-  const [invitedGuestName] = useState(() => new URLSearchParams(window.location.search).get('to')?.trim() || '')
+  const [dateDay, setDateDay] = useState(() => (
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches ? weddingDate.getDate() : 1
+  ))
+  const [storedGreetings, setStoredGreetings] = useState(() => ({
+    ...loadGreetings(),
+    loading: false,
+  }))
+  const [invitedGuestName] = useState(() => (
+    new URLSearchParams(window.location.search).get('to')?.trim().slice(0, 80) || ''
+  ))
   const [attendance, setAttendance] = useState('hadir')
   const [confirmation, setConfirmation] = useState(null)
   const [copiedAccount, setCopiedAccount] = useState('')
@@ -92,6 +233,33 @@ function App() {
   const openingTimerRef = useRef(null)
   const touchTimersRef = useRef(new Set())
   const greetingModalRef = useRef(null)
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
+
+    let currentDay = 1
+    const timer = window.setInterval(() => {
+      currentDay += 1
+      setDateDay(currentDay)
+      if (currentDay >= weddingDate.getDate()) window.clearInterval(timer)
+    }, 75)
+
+    return () => window.clearInterval(timer)
+  }, [])
+
+  const refreshGreetings = useCallback(async () => {
+    setStoredGreetings((current) => ({ ...current, loading: true, error: '' }))
+    try {
+      const greetings = await fetchSharedGreetings()
+      setStoredGreetings({ greetings, error: '', loading: false })
+    } catch (error) {
+      setStoredGreetings((current) => ({
+        ...current,
+        error: error instanceof Error ? error.message : 'Ucapan bersama tidak dapat dimuat.',
+        loading: false,
+      }))
+    }
+  }, [])
 
   useEffect(() => {
     const timer = window.setInterval(() => setTimeLeft(getTimeLeft()), 1000)
@@ -134,6 +302,10 @@ function App() {
       window.removeEventListener('keydown', closeOnEscape)
     }
   }, [greetingModal])
+
+  useEffect(() => {
+    if (invitationOpened) void refreshGreetings()
+  }, [invitationOpened, refreshGreetings])
 
   useEffect(() => {
     if (!invitationOpened) return undefined
@@ -219,7 +391,7 @@ function App() {
       })
 
       const nextGreetings = [greeting, ...storedGreetings.greetings]
-      setStoredGreetings({ greetings: nextGreetings, error: '' })
+      setStoredGreetings({ greetings: nextGreetings, error: '', loading: false })
       try {
         window.localStorage.setItem(greetingsStorageKey, JSON.stringify(nextGreetings))
       } catch {
@@ -228,6 +400,7 @@ function App() {
 
       setOpenedGreetingId('')
       setGreetingModal('list')
+      void refreshGreetings()
     } catch (error) {
       setGreetingError(`Ucapan belum berhasil dikirim. Periksa koneksi internet dan URL/deployment Apps Script, lalu coba lagi.${error instanceof Error ? ` (${error.message})` : ''}`)
     } finally {
@@ -340,7 +513,14 @@ function App() {
             <SulapaMark />
           </div>
           <h1 id="opening-title" className="opening-names">Irna <span>&</span> Peby</h1>
-          <p className="opening-date">{weddingDateLabel} <span>·</span> Parepare</p>
+          <p className="opening-date">
+            <span className="date-counter">{String(dateDay).padStart(2, '0')}</span>
+            {' '}{weddingDateLabel(dateDay).replace(/^\d+\s/, '')} <span>·</span> Parepare
+          </p>
+          <div className="opening-recipient">
+            <span>{invitedGuestName ? 'KEPADA YTH.' : 'TAMU UNDANGAN'}</span>
+            <strong>{invitedGuestName || 'Bapak/Ibu/Saudara/i'}</strong>
+          </div>
           <div className="opening-envelope">
             <div className="envelope-back" />
             <div className="opening-letter">
@@ -427,7 +607,10 @@ function App() {
           </div>
           <p className="eyebrow hero-eyebrow">INTIMATE WEDDING</p>
           <h1>Irna <span>&</span> Peby</h1>
-          <p className="hero-date">{weddingDateLabel} <span className="date-dot">·</span> Parepare</p>
+          <p className="hero-date">
+            <span className="date-counter">{String(dateDay).padStart(2, '0')}</span>
+            {' '}{weddingDateLabel(dateDay).replace(/^\d+\s/, '')} <span className="date-dot">·</span> Parepare
+          </p>
           <a className="button button-light" href="#cerita">Lihat cerita kami <span>↓</span></a>
         </div>
         <p className="hero-caption">SEBUAH HARI, SEBUAH JANJI, SELAMANYA.</p>
@@ -463,7 +646,7 @@ function App() {
               <p className="couple-person">
                 <span>MEMPELAI PRIA</span>
                 <strong>Peby Nugraha Ariyanto</strong>
-                <small>Putra dari Hj. Nirwana<br />dan (Alm.) Oesny El</small>
+                <small>Putra dari (Alm.) Oesny El<br />dan Hj. Nirwana</small>
               </p>
             </div>
             <span className="couple-flower couple-flower-right" aria-hidden="true">✿</span>
@@ -491,7 +674,7 @@ function App() {
               </div>
             ))}
           </div>
-          <p className="countdown-date">{weddingDateLabel}</p>
+          <p className="countdown-date">{weddingDateLabel(dateDay)}</p>
         </div>
       </section>
 
@@ -505,9 +688,10 @@ function App() {
           <article className="event-card reveal">
             <p className="event-number">01 / AKAD</p>
             <h3>Akad Nikah</h3>
-            <p className="event-day">Minggu, {weddingDateLabel}</p>
+            <EventDate />
             <p className="event-time"><strong>10.00 WITA</strong> – selesai</p>
             <div className="event-divider" />
+            <p className="event-venue"><i className="bi bi-geo-alt-fill" aria-hidden="true" /><strong>{weddingVenue}</strong></p>
             <p className="event-place">{weddingAddress}</p>
             <div className="event-map-links">
               <a className="text-link" href={mapUrl} target="_blank" rel="noreferrer">Google Maps <i className="bi bi-arrow-up-right" aria-hidden="true" /></a>
@@ -517,9 +701,10 @@ function App() {
           <article className="event-card event-card-dark reveal">
             <p className="event-number">02 / RESEPSI</p>
             <h3>Resepsi</h3>
-            <p className="event-day">Minggu, {weddingDateLabel}</p>
+            <EventDate />
             <p className="event-time"><strong>11.00 WITA</strong> – selesai</p>
             <div className="event-divider" />
+            <p className="event-venue"><i className="bi bi-geo-alt-fill" aria-hidden="true" /><strong>{weddingVenue}</strong></p>
             <p className="event-place">{weddingAddress}</p>
             <div className="event-map-links">
               <a className="text-link" href={mapUrl} target="_blank" rel="noreferrer">Google Maps <i className="bi bi-arrow-up-right" aria-hidden="true" /></a>
@@ -536,6 +721,7 @@ function App() {
             <p className="eyebrow">SAMPAI JUMPA DI PAREPARE</p>
             <h2>Temukan<br /><em>jalan menuju kami.</em></h2>
             <p className="location-venue"><strong>Akad nikah dan resepsi</strong></p>
+            <p className="location-venue-name"><i className="bi bi-geo-alt-fill" aria-hidden="true" /> {weddingVenue}</p>
             <address>{weddingAddress}</address>
             <div className="location-map-actions">
               <a className="button button-dark location-button" href={mapUrl} target="_blank" rel="noreferrer">
@@ -673,13 +859,16 @@ function App() {
               setOpenedGreetingId('')
               setGreetingError('')
               setGreetingModal('list')
+              void refreshGreetings()
             }}
             aria-haspopup="dialog"
-            aria-label={`Buka ucapan, ${storedGreetings.greetings.length} surat`}
+            aria-label={storedGreetings.loading
+              ? 'Buka ucapan, sedang memuat'
+              : `Buka ucapan, ${storedGreetings.greetings.length} surat`}
           >
             <i className="bi bi-envelope-heart greeting-dock-icon" aria-hidden="true" />
             <span>Ucapan</span>
-            <span className="greeting-count">{storedGreetings.greetings.length}</span>
+            <span className="greeting-count">{storedGreetings.loading ? '…' : storedGreetings.greetings.length}</span>
           </button>
 
           {greetingModal && (
@@ -762,9 +951,15 @@ function App() {
                   <>
                     <p className="eyebrow">SURAT PENUH DOA</p>
                     <h2 id="greeting-dialog-title">Ucapan <em>untuk kami.</em></h2>
+                    {storedGreetings.loading && <p className="greeting-empty" role="status">Memuat ucapan...</p>}
                     {greetingError && <p className="form-error" role="alert">{greetingError}</p>}
                     {!greetingError && storedGreetings.error && <p className="form-error" role="alert">{storedGreetings.error}</p>}
-                    {!storedGreetings.error && storedGreetings.greetings.length === 0 && (
+                    {storedGreetings.error && (
+                      <button className="button button-dark" type="button" onClick={() => void refreshGreetings()}>
+                        Coba muat ulang
+                      </button>
+                    )}
+                    {!storedGreetings.loading && !storedGreetings.error && storedGreetings.greetings.length === 0 && (
                       <p className="greeting-empty">Belum ada surat ucapan. Jadilah yang pertama mengirimkan doa.</p>
                     )}
                     <div className="greeting-list">

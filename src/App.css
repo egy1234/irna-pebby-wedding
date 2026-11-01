@@ -123,11 +123,53 @@ main[data-theme='light'] {
   color: var(--terracotta);
 }
 
+.opening-date .date-counter,
+.hero-date .date-counter {
+  display: inline-block;
+  min-width: 1.45em;
+  padding: 0;
+  color: #e6c6a9;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: center;
+  animation: date-counter-tick 180ms ease-out;
+}
+
+.opening-recipient {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: min(100%, 340px);
+  margin-top: 21px;
+  padding: 10px 20px 11px;
+  border-top: 1px solid rgb(168 110 78 / 28%);
+  border-bottom: 1px solid rgb(168 110 78 / 28%);
+  animation: text-arrive 700ms 180ms both ease;
+}
+
+.opening-recipient span {
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+}
+
+.opening-recipient strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(20px, 5vw, 25px);
+  font-weight: 600;
+  text-overflow: ellipsis;
+}
+
 .opening-envelope {
   position: relative;
   width: min(290px, 76vw);
   height: 178px;
-  margin-top: 37px;
+  margin-top: 25px;
   perspective: 900px;
   filter: drop-shadow(0 19px 24px rgb(65 43 29 / 18%));
   animation: envelope-arrive 900ms 250ms both cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -1125,12 +1167,87 @@ main[data-theme='light'] {
   color: #f7f1e8;
 }
 
-.event-day,
 .event-time,
 .event-place {
   color: var(--muted);
   font-size: 10px;
   line-height: 1.8;
+}
+
+.event-day-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  margin: 15px 0 17px;
+}
+
+.event-date-weekday {
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+}
+
+.event-date-counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-width: 190px;
+  padding: 3px 20px 8px;
+  border-bottom: 1px solid var(--terracotta);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.event-date-day {
+  color: var(--terracotta);
+  font-family: var(--serif);
+  font-size: clamp(56px, 7vw, 72px);
+  font-weight: 600;
+  letter-spacing: -0.07em;
+  line-height: 0.9;
+  animation: event-date-tick 260ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.event-date-month {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 19px;
+  font-style: italic;
+  line-height: 1.05;
+  text-transform: capitalize;
+}
+
+.event-date-month strong {
+  color: var(--muted);
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+}
+
+.event-card-dark .event-date-weekday,
+.event-card-dark .event-date-month strong {
+  color: #e4e0d8;
+}
+
+.event-card-dark .event-date-counter {
+  color: #fffaf3;
+}
+
+.event-card-dark .event-date-month {
+  color: #fffaf3;
+}
+
+.event-card-dark .event-date-day {
+  color: #f5d5b2;
+  text-shadow: 0 2px 12px rgb(22 12 7 / 45%);
 }
 
 .event-time strong {
@@ -1143,6 +1260,35 @@ main[data-theme='light'] {
 .event-card-dark .event-time,
 .event-card-dark .event-place {
   color: #e4e0d8;
+}
+
+.event-venue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 8px 0 2px;
+  padding: 8px 12px;
+  border: 1px solid var(--card-border);
+  color: var(--terracotta);
+  background: rgb(255 250 243 / 48%);
+}
+
+.event-venue i {
+  font-size: 13px;
+}
+
+.event-venue strong {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.event-card-dark .event-venue {
+  border-color: rgb(255 255 255 / 28%);
+  color: #fff0dc;
+  background: rgb(255 255 255 / 9%);
 }
 
 .event-card-dark .event-time strong {
@@ -1298,6 +1444,32 @@ main[data-theme='light'] {
 
 .location-venue strong {
   font-weight: 700;
+}
+
+.location-venue-name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 14px auto 12px;
+  padding: 12px 20px;
+  border: 1px solid rgb(255 240 220 / 45%);
+  border-radius: 2px;
+  color: #fffaf3;
+  background: var(--event-dark-gradient);
+  box-shadow: 0 8px 22px rgb(73 53 42 / 16%);
+  font-family: var(--serif);
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.location-venue-name i {
+  color: #e9c29f;
+  font-family: sans-serif;
+  font-size: 17px;
 }
 
 .location-copy address {
@@ -1817,6 +1989,16 @@ main[data-theme='dark'] .location-map iframe {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes date-counter-tick {
+  from { opacity: 0.55; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes event-date-tick {
+  from { opacity: 0.68; transform: translateY(3px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 @keyframes intro-rise-in {
   0% { opacity: 0; transform: translateY(28px); }
   72% { opacity: 1; }
@@ -2069,12 +2251,17 @@ main[data-theme='dark'] .location-map iframe {
 }
 
 @media (max-width: 480px) {
+  .invitation-opening::before,
+  .invitation-opening::after {
+    width: min(94vw, 520px);
+  }
+
   .invitation-opening::before {
-    transform: translate(-50%, -50%) scale(1.18);
+    transform: translate(-50%, -50%) scale(1.08);
   }
 
   .invitation-opening::after {
-    transform: translate(-50%, -50%) scale(1.36);
+    transform: translate(-50%, -50%) scale(1.24);
   }
 
   .brand {

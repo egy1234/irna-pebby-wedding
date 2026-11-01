@@ -22,13 +22,46 @@ Jalankan `npm run lint` untuk pemeriksaan kode dan `npm run build` untuk membuat
 - Ubah rekening contoh sebelum undangan dibagikan.
 - Ganti foto hero dan gaya halaman melalui `src/App.css` serta `src/index.css`.
 
-Formulir RSVP dan ucapan mengirim data JSON sebagai `text/plain` ke Google Apps Script melalui URL Web App di `src/App.jsx`, dengan `mode: 'no-cors'` agar browser mengirim POST tanpa mencoba membaca respons lintas origin. Karena respons Apps Script menjadi opaque, UI tidak dapat memastikan apakah skrip berhasil menulis data; cek spreadsheet setelah pengiriman. Untuk konfirmasi sukses/gagal yang dapat dibaca frontend, gunakan backend/proxy yang mengizinkan CORS atau pindahkan pemanggilan ke layanan yang menyediakan CORS.
+Formulir RSVP dan ucapan mengirim data JSON sebagai `text/plain` ke Google Apps Script melalui URL Web App di `src/App.jsx`, dengan `mode: 'no-cors'` agar browser mengirim POST tanpa mencoba membaca respons lintas origin. Karena respons POST tidak dapat dibaca browser, konfirmasi tulis tetap tidak dapat diverifikasi dari frontend.
 
 Payload yang dikirim:
 
 - RSVP: `{ action: 'rsvp', nama, kehadiran, jumlahTamu }`
 - Ucapan: `{ action: 'greeting', namaPengirim, pesan }`
 
-Apps Script harus memiliki `doPost(e)`, mengurai `e.postData.contents` sebagai JSON, dan memproses kedua action. Daftar amplop ucapan pada UI saat ini hanya berisi ucapan di browser tersebut ditambah ucapan yang baru dikirim; agar semua pesan spreadsheet ditampilkan lintas perangkat, Apps Script juga perlu menyediakan endpoint untuk membaca data.
+Apps Script harus memiliki `doPost(e)`, mengurai `e.postData.contents` sebagai JSON, dan memproses kedua action. Agar semua tamu melihat ucapan yang sama, tambahkan endpoint JSONP `doGet(e)` berikut ke proyek Apps Script. Baris pertama tab `Ucapan` harus berisi header dan kolom berikutnya berurutan: `id | nama_pengirim | pesan | waktu_kirim`.
 
-Nama undangan dapat diisi otomatis dari parameter URL `?to=Nama%20Tamu`. Contoh: `https://alamat-undangan/?to=Budi`.
+```js
+function doGet(e) {
+  const callback = e.parameter.callback || '';
+  const jsonp = (result) => {
+    if (!callback) return responseJSON(result);
+    if (!/^[A-Za-z_$][0-9A-Za-z_$]*$/.test(callback)) {
+      return responseJSON({ status: 'error', message: 'Callback tidak valid' });
+    }
+    return ContentService
+      .createTextOutput(`${callback}(${JSON.stringify(result)});`)
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  };
+  try {
+    if (e.parameter.action !== 'getGreetings') {
+      return jsonp({ status: 'error', message: 'Aksi tidak dikenal' });
+    }
+    return jsonp({ status: 'success', data: ambilUcapan() });
+  } catch (error) {
+    return jsonp({ status: 'error', message: String(error) });
+  }
+}
+```
+
+Setelah menyimpan script, buka **Deploy → Manage deployments → Edit → New version → Deploy**. Pastikan akses Web App mengizinkan siapa saja membuka undangan membaca daftar ucapan. Frontend memuat data bersama saat undangan dibuka dan menyegarkannya saat panel ucapan dibuka. Endpoint baca ini membuat nama dan isi ucapan dapat dibaca publik, sesuai tujuan menampilkannya ke semua tamu.
+
+Nama undangan tampil otomatis pada halaman pembuka dan terisi pada formulir RSVP dari parameter URL `?to=Nama%20Tamu`. Contoh: `https://alamat-undangan/?to=Budi`.
+
+Untuk membuat tautan personal bagi satu atau banyak tamu, buka halaman `/buat-tautan` pada website, masukkan satu nama per baris, lalu pilih **Buat tautan**. Tautan dapat disalin satu per satu, disalin semua, atau diunduh sebagai CSV. Nama yang dimasukkan hanya diproses di browser dan tidak disimpan oleh website.
+
+Alternatifnya, di Google Sheets simpan nama di kolom A mulai dari A2, lalu gunakan rumus berikut di B2 dan tarik ke bawah. Ganti URL contoh dengan URL website yang sudah dipublikasikan.
+
+```text
+=HYPERLINK("https://alamat-undangan.com/?to="&ENCODEURL(A2);"Buka undangan untuk "&A2)
+```

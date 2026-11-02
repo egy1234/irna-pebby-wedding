@@ -635,15 +635,16 @@ main[data-theme='light'] {
 }
 
 .button-light {
-  min-height: 40px;
-  gap: 16px;
-  padding: 0 17px;
+  min-height: 34px;
+  gap: 11px;
+  padding: 0 13px;
   border: 1px solid rgb(255 250 243 / 40%);
   border-radius: 999px;
   color: #fffaf3;
   background: rgb(37 27 21 / 38%);
   box-shadow: 0 5px 16px rgb(25 16 11 / 15%);
   backdrop-filter: blur(8px);
+  font-size: 9px;
 }
 
 .button-light:hover {

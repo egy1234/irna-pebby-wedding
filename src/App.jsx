@@ -599,6 +599,8 @@ function App() {
 
       <section className="hero" id="home">
         <div className="hero-photo" aria-hidden="true" />
+        <img className="hero-flower hero-flower-left" src="/flower.png" alt="" aria-hidden="true" />
+        <img className="hero-flower hero-flower-right" src="/flower.png" alt="" aria-hidden="true" />
         <div className="bugis-hero-trim bugis-hero-trim-top" aria-hidden="true" />
         <div className="bugis-hero-trim bugis-hero-trim-bottom" aria-hidden="true" />
         <div className="hero-content">
@@ -679,6 +681,7 @@ function App() {
       </section>
 
       <section className="events section-wrap" id="acara">
+        <img className="section-ornament events-ornament" src="/flower%202.png" alt="" aria-hidden="true" />
         <div className="section-label reveal"><span>02</span> RANGKAIAN ACARA</div>
         <div className="events-heading reveal">
           <p className="eyebrow">CATAT TANGGALNYA</p>
@@ -715,6 +718,7 @@ function App() {
       </section>
 
       <section className="location-section section-wrap" id="lokasi">
+        <img className="section-ornament location-ornament" src="/flower%203.png" alt="" aria-hidden="true" />
         <div className="section-label reveal"><span>03</span> LOKASI ACARA</div>
         <div className="location-content">
           <div className="location-copy location-paper reveal">
@@ -749,8 +753,8 @@ function App() {
 
       <section className="rsvp-section" id="rsvp">
         <div className="rsvp-decoration" aria-hidden="true">❋</div>
-        <span className="section-flower section-flower-one" aria-hidden="true">❀</span>
-        <span className="section-flower section-flower-two" aria-hidden="true">✿</span>
+        <img className="section-flower section-flower-one" src="/flower.png" alt="" aria-hidden="true" />
+        <img className="section-flower section-flower-two" src="/flower.png" alt="" aria-hidden="true" />
         <div className="rsvp-content">
           <div className="section-label reveal"><span>04</span> KONFIRMASI KEHADIRAN</div>
           <div className="rsvp-intro reveal">
@@ -815,6 +819,7 @@ function App() {
       </section>
 
       <section className="gift-section section-wrap" id="hadiah">
+        <img className="gift-flower" src="/flower.png" alt="" aria-hidden="true" />
         <div className="section-label reveal"><span>05</span> TANDA KASIH</div>
         <div className="gift-copy reveal">
           <p className="eyebrow">DOA ANDA ADALAH HADIAH TERINDAH</p>

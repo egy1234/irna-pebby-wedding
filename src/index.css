@@ -36,6 +36,15 @@
   --attendance-selected-background: rgb(255 252 246 / 80%);
   --card-border: rgb(121 87 64 / 19%);
   --header-action-background: rgb(255 250 243 / 38%);
+  --header-border: rgb(73 53 42 / 12%);
+  --input-border: #d5cec2;
+  --map-frame: rgb(255 250 243 / 76%);
+  --hero-flower-opacity: 0.68;
+  --section-flower-opacity: 0.32;
+  --gift-flower-opacity: 0.42;
+  --flower-shadow: drop-shadow(0 5px 12px rgb(34 23 16 / 18%));
+  --ornament-opacity: 0.42;
+  --ornament-shadow: drop-shadow(0 6px 16px rgb(55 38 25 / 13%));
 
   scroll-behavior: smooth;
 }
@@ -68,6 +77,15 @@ main[data-theme='dark'] {
   --attendance-selected-background: rgb(75 52 37 / 82%);
   --card-border: rgb(225 180 143 / 19%);
   --header-action-background: rgb(40 29 22 / 65%);
+  --header-border: rgb(241 229 217 / 14%);
+  --input-border: #705b4a;
+  --map-frame: rgb(241 229 217 / 30%);
+  --hero-flower-opacity: 0.76;
+  --section-flower-opacity: 0.43;
+  --gift-flower-opacity: 0.5;
+  --flower-shadow: drop-shadow(0 5px 14px rgb(0 0 0 / 32%));
+  --ornament-opacity: 0.3;
+  --ornament-shadow: drop-shadow(0 7px 18px rgb(0 0 0 / 35%));
 }
 
 * {
@@ -78,6 +96,13 @@ body {
   min-width: 320px;
   margin: 0;
   overflow-x: clip;
+}
+
+img,
+svg,
+video,
+iframe {
+  max-width: 100%;
 }
 
 button,

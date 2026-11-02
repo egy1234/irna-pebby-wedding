@@ -841,7 +841,6 @@ function App() {
           {copyMessage && <p className="copy-message" role="status">{copyMessage}</p>}
         </div>
         <div className="gift-aside reveal">
-          <span className="gift-mark" aria-hidden="true">✳</span>
           <p>Dengan cinta,<br /><em>Irna & Peby</em></p>
         </div>
       </section>

@@ -318,10 +318,10 @@ main[data-theme='light'] {
 
 .touch-burst span {
   position: absolute;
-  color: var(--flower);
+  color: var(--touch-particle-color);
   font-size: 16px;
   opacity: 0;
-  text-shadow: 0 2px 8px rgb(60 40 27 / 14%);
+  text-shadow: var(--touch-particle-shadow);
   animation: touch-spark 850ms ease-out both;
 }
 
@@ -330,6 +330,20 @@ main[data-theme='light'] {
 .touch-burst span:nth-child(3) { --spark-x: 32px; --spark-y: 10px; animation-delay: 70ms; font-size: 11px; }
 .touch-burst span:nth-child(4) { --spark-x: -27px; --spark-y: 22px; animation-delay: 20ms; font-size: 12px; }
 .touch-burst span:nth-child(5) { --spark-x: 1px; --spark-y: -42px; animation-delay: 50ms; font-size: 18px; }
+
+.touch-burst .touch-burst-names {
+  top: -34px;
+  left: 0;
+  color: var(--touch-name-color);
+  font-family: var(--serif);
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  text-shadow: var(--touch-name-shadow);
+  animation: touch-names 1s ease-out both;
+}
 
 .site-header {
   position: sticky;
@@ -537,9 +551,36 @@ main[data-theme='light'] {
 }
 
 .hero-eyebrow {
-  font-size: 10px;
-  letter-spacing: 0.31em;
-  text-shadow: 0 1px 4px rgb(25 16 11 / 70%), 0 0 12px rgb(25 16 11 / 35%);
+  position: relative;
+  top: -6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 11px;
+  border: 1px solid rgb(255 235 207 / 72%);
+  border-radius: 2px;
+  color: #fff4df;
+  background: rgb(37 27 21 / 48%);
+  box-shadow: 0 3px 12px rgb(20 12 8 / 52%);
+  backdrop-filter: blur(5px);
+  font-size: clamp(11px, 1.25vw, 14px);
+  font-weight: 700;
+  letter-spacing: clamp(0.14em, 0.28vw, 0.22em);
+  -webkit-text-stroke: 0.35px rgb(35 19 11 / 85%);
+  text-shadow:
+    0 1px 1px #24150e,
+    0 1px 5px rgb(20 12 8 / 90%);
+}
+
+.hero-eyebrow::before,
+.hero-eyebrow::after {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  flex: 0 0 auto;
+  border: 1px solid #f0c99f;
+  transform: rotate(45deg);
+  content: '';
 }
 
 .hero h1 {
@@ -2030,6 +2071,13 @@ main[data-theme='dark'] .location-map iframe {
   0% { opacity: 0; transform: translate(0, 0) scale(0.35) rotate(-20deg); }
   22% { opacity: 0.9; }
   100% { opacity: 0; transform: translate(var(--spark-x), var(--spark-y)) scale(1.2) rotate(35deg); }
+}
+
+@keyframes touch-names {
+  0% { opacity: 0; transform: translate(-50%, 8px) scale(0.88); }
+  20% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  72% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -10px) scale(1.02); }
 }
 
 @keyframes flower-drift {

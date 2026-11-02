@@ -46,6 +46,10 @@
   --ornament-opacity: 0.42;
   --ornament-shadow: drop-shadow(0 6px 16px rgb(55 38 25 / 13%));
   --opening-flower-opacity: 0.36;
+  --touch-particle-color: #a85d43;
+  --touch-particle-shadow: 0 0 7px rgb(255 248 237 / 80%);
+  --touch-name-color: #854a36;
+  --touch-name-shadow: 0 0 8px rgb(255 248 237 / 85%);
 
   scroll-behavior: smooth;
 }
@@ -88,6 +92,10 @@ main[data-theme='dark'] {
   --ornament-opacity: 0.3;
   --ornament-shadow: drop-shadow(0 7px 18px rgb(0 0 0 / 35%));
   --opening-flower-opacity: 0.24;
+  --touch-particle-color: #f6d59c;
+  --touch-particle-shadow: 0 0 10px rgb(255 225 168 / 75%);
+  --touch-name-color: #ffe6bd;
+  --touch-name-shadow: 0 0 12px rgb(255 225 168 / 72%);
 }
 
 * {

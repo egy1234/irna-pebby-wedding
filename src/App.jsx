@@ -561,6 +561,7 @@ function App() {
           style={{ left: effect.x, top: effect.y }}
         >
           <span>✧</span><span>✿</span><span>✦</span><span>❀</span><span>·</span>
+          <span className="touch-burst-names">Irna &amp; Peby</span>
         </span>
       ))}
       <header className="site-header">

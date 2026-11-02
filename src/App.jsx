@@ -508,6 +508,8 @@ function App() {
           aria-modal="true"
           aria-labelledby="opening-title"
         >
+          <img className="opening-flower opening-flower-top" src="/flower%202.png" alt="" aria-hidden="true" />
+          <img className="opening-flower opening-flower-bottom" src="/flower%203.png" alt="" aria-hidden="true" />
           <div className="opening-stars" aria-hidden="true">✦ ✧ ❀ ✧ ✦</div>
           <div className="sulapa-lockup opening-sulapa">
             <SulapaMark />

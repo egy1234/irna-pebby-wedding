@@ -3589,3 +3589,161 @@ main[data-theme='dark'] .location-map iframe {
     letter-spacing: 0.1em;
   }
 }
+
+.invitation-opening {
+  justify-content: center;
+  gap: clamp(4px, 1vh, 10px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.invitation-opening::before,
+.invitation-opening::after {
+  display: none;
+}
+
+.invitation-opening > :not(.opening-flower) {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.opening-flower {
+  position: absolute;
+  z-index: 0;
+  width: clamp(100px, 19vw, 220px);
+  height: auto;
+  max-height: min(30svh, 240px);
+  object-fit: contain;
+  opacity: var(--opening-flower-opacity);
+  filter: var(--flower-shadow);
+  pointer-events: none;
+  user-select: none;
+}
+
+.opening-flower-top {
+  top: 5%;
+  right: -3%;
+  transform: rotate(12deg);
+}
+
+.opening-flower-bottom {
+  bottom: 5%;
+  left: -3%;
+  transform: scaleX(-1) rotate(-8deg);
+}
+
+.opening-stars {
+  margin: 0 0 clamp(6px, 1.4vh, 13px);
+  font-size: clamp(12px, 3.8vw, 15px);
+}
+
+.opening-sulapa {
+  margin: 0 auto 2px;
+}
+
+.opening-names {
+  margin: 0;
+  font-size: clamp(38px, 10vw, 64px);
+  line-height: 1;
+}
+
+.opening-date {
+  max-width: 100%;
+  font-size: clamp(8px, 2.7vw, 10px);
+  line-height: 1.6;
+}
+
+.opening-recipient {
+  width: min(100%, 340px);
+  margin-top: clamp(5px, 1.4vh, 12px);
+  padding: 8px clamp(12px, 5vw, 20px);
+}
+
+.opening-recipient strong {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.opening-envelope {
+  width: min(290px, 74vw, 38svh);
+  height: clamp(132px, 22svh, 178px);
+  flex: 0 0 auto;
+  margin-top: clamp(10px, 2.2vh, 20px);
+}
+
+.opening-letter {
+  top: 8px;
+  right: 12px;
+  bottom: 8px;
+  left: 12px;
+  height: auto;
+}
+
+.opening-instruction {
+  margin-top: clamp(8px, 1.8vh, 16px);
+  font-size: clamp(8px, 2.5vw, 9px);
+}
+
+.opening-text-button {
+  margin-top: 0;
+  padding: 7px 12px;
+}
+
+@media (max-width: 480px) {
+  .invitation-opening {
+    padding: 18px 18px max(18px, env(safe-area-inset-bottom));
+  }
+
+  .opening-flower {
+    width: clamp(100px, 32vw, 145px);
+    opacity: calc(var(--opening-flower-opacity) * 0.8);
+  }
+
+  .opening-flower-top {
+    top: 5%;
+    right: -10%;
+  }
+
+  .opening-flower-bottom {
+    bottom: 5%;
+    left: -10%;
+  }
+
+  .opening-names {
+    font-size: clamp(37px, 12vw, 54px);
+  }
+
+  .opening-envelope {
+    width: min(270px, 72vw, 36svh);
+    height: clamp(128px, 21svh, 160px);
+  }
+
+  .letter-monogram {
+    font-size: clamp(30px, 9vw, 38px);
+  }
+}
+
+@media (max-height: 620px) {
+  .invitation-opening {
+    justify-content: flex-start;
+    gap: 4px;
+    padding-top: 12px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+
+  .opening-stars {
+    margin-bottom: 4px;
+  }
+
+  .opening-envelope {
+    width: min(230px, 58vw, 40svh);
+    height: clamp(110px, 25svh, 145px);
+    margin-top: 8px;
+  }
+
+  .opening-instruction {
+    margin-top: 6px;
+  }
+}
